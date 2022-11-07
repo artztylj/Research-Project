@@ -88,7 +88,7 @@ def preprocess_dataframe(df):
 #################################################################################################################
 #Predicting whether to buy [RATIO_PREDICT] in [FUTURE] days 
 #based on past [SEQ_LEN] days
-SEQ_LEN = 4
+SEQ_LEN = 5
 FUTURE = 1
 RATIO_PREDICT = "AAPL"
 EPOCHS = 70
@@ -172,14 +172,9 @@ for i in range(len(seeds)):
     #Two identical layers of a 300 neuron LSTM (GPU) each with a 0.2 dropout
     # and batch normalization in order to keep each layers' input normalized
     #  throughout training.
-    model.add(tf.keras.layers.LSTM(128, input_shape=(x_train.shape[1:]), return_sequences=True, 
+    model.add(tf.keras.layers.LSTM(256, input_shape=(x_train.shape[1:]), return_sequences=True, 
         kernel_initializer=glorot_initializer, recurrent_initializer=orthogonal_initializer))
     model.add(tf.keras.layers.Dropout(0.2))
-    model.add(tf.keras.layers.BatchNormalization())
-
-    model.add(tf.keras.layers.LSTM(128, input_shape=(x_train.shape[1:]), return_sequences=True,
-        kernel_initializer=glorot_initializer, recurrent_initializer=orthogonal_initializer))
-    model.add(tf.keras.layers.Dropout(0.1))
     model.add(tf.keras.layers.BatchNormalization())
 
     model.add(tf.keras.layers.LSTM(128, input_shape=(x_train.shape[1:]), return_sequences=False,
