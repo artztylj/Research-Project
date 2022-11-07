@@ -9,6 +9,8 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.python.keras.callbacks import TensorBoard, ModelCheckpoint
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 #Classification of whether or not the [RATIO_PREDICT] is higher or lower in the future
 #current: Current price
 #future: Price in [FUTURE] days
@@ -86,10 +88,10 @@ def preprocess_dataframe(df):
 #################################################################################################################
 #Predicting whether to buy [RATIO_PREDICT] in [FUTURE] days 
 #based on past [SEQ_LEN] days
-SEQ_LEN = 5
+SEQ_LEN = 4
 FUTURE = 1
 RATIO_PREDICT = "AAPL"
-EPOCHS = 100
+EPOCHS = 70
 BATCH_SIZE = 25
 OPT = tf.keras.optimizers.SGD(learning_rate=0.001, decay=1e-6)
 LOSS = "sparse_categorical_crossentropy"
@@ -115,7 +117,7 @@ for i in range(len(seeds)):
     #Data preprocessing in order to join all datasets together
     #Edit 'ratios' to change which datasets are being used
     # ratios: "AAPL", "TSLA" , "BTC-USD", "ETH-USD"
-    ratios = ['AAPL', 'TSLA', 'ETH-USD', 'BTC-USD']
+    ratios = ['AAPL', 'TSLA']
     for ratio in ratios:
         dataset = f"datasets/{ratio}.csv"
 
@@ -170,9 +172,14 @@ for i in range(len(seeds)):
     #Two identical layers of a 300 neuron LSTM (GPU) each with a 0.2 dropout
     # and batch normalization in order to keep each layers' input normalized
     #  throughout training.
-    model.add(tf.keras.layers.LSTM(256, input_shape=(x_train.shape[1:]), return_sequences=True, 
+    model.add(tf.keras.layers.LSTM(128, input_shape=(x_train.shape[1:]), return_sequences=True, 
         kernel_initializer=glorot_initializer, recurrent_initializer=orthogonal_initializer))
     model.add(tf.keras.layers.Dropout(0.2))
+    model.add(tf.keras.layers.BatchNormalization())
+
+    model.add(tf.keras.layers.LSTM(128, input_shape=(x_train.shape[1:]), return_sequences=True,
+        kernel_initializer=glorot_initializer, recurrent_initializer=orthogonal_initializer))
+    model.add(tf.keras.layers.Dropout(0.1))
     model.add(tf.keras.layers.BatchNormalization())
 
     model.add(tf.keras.layers.LSTM(128, input_shape=(x_train.shape[1:]), return_sequences=False,
@@ -195,10 +202,10 @@ for i in range(len(seeds)):
 
     #Creates a tensorboard object for the logs directory so that progress after each epoch
     # can be visualised and compared to one another after all training has been completed
-    tb = TensorBoard(log_dir=f'logs/Day 4/Both (Stock)/{NAME}')
+    tb = TensorBoard(log_dir=f'logs/Day 7/Crypto Data/{NAME}')
 
     filepath = "RNN-{epoch:02d}-{val_accuracy:.3f}"
-    cp = ModelCheckpoint("models/{}.hdf5".format(filepath, monitor='val_accuracy',
+    cp = ModelCheckpoint("models/Day 7/Stock Data/{}.hdf5".format(filepath, monitor='val_accuracy',
         verbose=1, save_best_only=True, mode='max'))
 
     #Executes the model using our preprocessed data
