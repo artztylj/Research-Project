@@ -12,6 +12,7 @@ from tensorflow import keras
 #from tensorflow.python.keras.layers import Dense, Dropout, LSTM
 from tensorflow.python.keras.callbacks import TensorBoard, ModelCheckpoint
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 #Predicting whether to buy [RATIO_PREDICT] in [FUTURE] days 
 #based on past [SEQ_LEN] days
@@ -193,10 +194,10 @@ model.compile(loss="sparse_categorical_crossentropy",
 
 #Creates a tensorboard object for the logs directory so that progress after each epoch
 # can be visualised and compared to one another after all training has been completed
-tb = TensorBoard(log_dir=f'logs/Day 3/Stock Data/{NAME}')
+tb = TensorBoard(log_dir=f'logs/Test/{NAME}')
 
 filepath = "RNN-{epoch:02d}-{val_accuracy:.3f}"
-cp = ModelCheckpoint("models/{}.hdf5".format(filepath, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max'))
+cp = ModelCheckpoint("models/test/{}.hdf5".format(filepath, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max'))
 
 #Executes the model using our preprocessed data
 history = model.fit(
